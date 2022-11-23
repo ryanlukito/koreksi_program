@@ -2,9 +2,11 @@
 #include <string>
 using namespace std;
 
+/***********************************************************************************/
 // class bankAccount definition
 class bankAccount
 {
+    // declaring variales and methods
 protected:
     int acc_num;
     double balance;
@@ -42,16 +44,16 @@ double bankAccount::get_balance()
 
 double bankAccount::deposit(double add)
 {
-    balance += add;
-    set_balance(balance);
-    // get_balance();
+    int vessel = balance;
+    vessel += add;
+    set_balance(vessel);
 }
 
 double bankAccount::withdraw(double minus)
 {
-    balance -= minus;
-    set_balance(balance);
-    // get_balance();
+    int vessel = balance;
+    vessel -= minus;
+    set_balance(vessel);
 }
 
 void bankAccount::display_acc()
@@ -65,11 +67,13 @@ bankAccount::bankAccount()
     set_acc_num(0);
     set_balance(0);
 }
+/***********************************************************************************/
 
 /***********************************************************************************/
 // class checkingAccount definition
 class checkingAccount : public bankAccount
 {
+    // declaring variales and methods
 protected:
     double interest = 0.05;
     double min_balance = 500;
@@ -77,10 +81,10 @@ protected:
 
 public:
     double get_interest();
-    double get_balance();
     double minimum_balance();
     double service_charge();
-    bool verify_balance();
+    double pay_service_charge();
+    bool verify_balance(double vb);
     double withdraw(double minus);
     void display_acc();
 
@@ -88,14 +92,10 @@ public:
     checkingAccount(int acc, double bal);
 };
 
+// methods description
 double checkingAccount::get_interest()
 {
     return interest;
-}
-
-double checkingAccount::get_balance()
-{
-    return balance;
 }
 
 double checkingAccount::minimum_balance()
@@ -108,23 +108,36 @@ double checkingAccount::service_charge()
     return sg;
 }
 
-bool checkingAccount::verify_balance()
+double checkingAccount::pay_service_charge()
 {
-    double a = minimum_balance();
-    double b = get_balance();
-    if (b < a)
+    cout << "Saldo anda berada di bawah batas minimum. Untuk itu, Anda dikenakan denda sebesar " << sg << " untuk dibayarkan pada bulan depan" << endl;
+}
+
+bool checkingAccount::verify_balance(double vb)
+{
+    double a = get_balance();
+    if (a <= min_balance)
     {
+        cout << "Maaf transaksi tidak bisa dilakukan" << endl;
+        pay_service_charge();
         return false;
     }
     else
     {
-        return true;
+        if (a < vb)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 }
 
 double checkingAccount::withdraw(double minus)
 {
-    double vessel = balance;
+    double vessel = get_balance();
     vessel -= minus;
     set_balance(vessel);
 }
@@ -145,11 +158,13 @@ checkingAccount::checkingAccount(int acc, double bal)
     acc_num = acc;
     balance = bal;
 }
+/***********************************************************************************/
 
 /***********************************************************************************/
 // class savingsAccout definiton
 class savingsAccount : public bankAccount
 {
+    // declaring variales and methods
 protected:
     double interest = 0.05;
 
@@ -157,12 +172,12 @@ public:
     double get_interest();
     double withdraw(double minus);
     double deposit(double add);
-    void display_acc();
+    double receive_interest();
 
     savingsAccount();
     savingsAccount(int acc, double bal);
 };
-
+// methods description
 double savingsAccount::get_interest()
 {
     return interest;
@@ -170,15 +185,23 @@ double savingsAccount::get_interest()
 
 double savingsAccount::withdraw(double minus)
 {
-    double vessel = balance;
+    double vessel = get_balance();
     vessel -= minus;
     set_balance(vessel);
 }
 
 double savingsAccount::deposit(double add)
 {
-    double vessel = balance;
+
+    double vessel = get_balance();
     vessel += add;
+    set_balance(vessel);
+}
+
+double savingsAccount::receive_interest()
+{
+    double vessel = get_balance();
+    vessel += (balance * interest);
     set_balance(vessel);
 }
 
@@ -193,11 +216,7 @@ savingsAccount::savingsAccount(int acc, double bal)
     acc_num = acc;
     balance = bal;
 }
-
-void savingsAccount::display_acc()
-{
-    bankAccount::display_acc();
-}
+/***********************************************************************************/
 
 // main program
 int main()
@@ -239,7 +258,7 @@ int main()
 
                 cout << "Masukkan nominal uang yang akan diambil: ";
                 cin >> wd;
-                if (ca.verify_balance())
+                if (ca.verify_balance(wd))
                 {
                     ca.withdraw(wd);
                     cout << "Silahkan ambil uang anda. Anda akan diarahkan kembali ke menu utama" << endl;
@@ -247,7 +266,8 @@ int main()
                 }
                 else
                 {
-                    cout << "Saldo anda tidak mencukupi. Anda akan diarahkan kembali ke menut utama" << endl;
+                    cout << "Saldo anda tidak mencukupi. Anda akan diarahkan kembali ke menu utama" << endl;
+                    break;
                 }
                 cout << endl;
                 break;
@@ -260,6 +280,9 @@ int main()
         }
         else if (choice == 2)
         {
+            cout << "Selamat, Anda mendapatkan bunga sebesar '5%' dari total saldo Anda" << endl;
+            double receive_interest();
+
             int ch, ans;
             cout << "Silahkan pilih menu yang anda inginkan: " << endl;
             cout << "1. Withdraw Money" << endl;
@@ -273,8 +296,9 @@ int main()
 
                 cout << "Masukkan nominal uang yang akan diambil: ";
                 cin >> wd;
-                if (ca.verify_balance())
+                if (ca.verify_balance(wd))
                 {
+                    sa.display_acc();
                     sa.withdraw(wd);
                     cout << "Silahkan ambil uang anda. Anda akan diarahkan kembali ke menu utama" << endl;
                     break;
