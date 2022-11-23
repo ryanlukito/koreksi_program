@@ -5,7 +5,7 @@ using namespace std;
 // class bankAccount definition
 class bankAccount
 {
-public:
+protected:
     int acc_num;
     double balance;
 
@@ -43,13 +43,15 @@ double bankAccount::get_balance()
 double bankAccount::deposit(double add)
 {
     balance += add;
-    get_balance();
+    set_balance(balance);
+    // get_balance();
 }
 
 double bankAccount::withdraw(double minus)
 {
     balance -= minus;
-    get_balance();
+    set_balance(balance);
+    // get_balance();
 }
 
 void bankAccount::display_acc()
@@ -64,12 +66,13 @@ bankAccount::bankAccount()
     set_balance(0);
 }
 
+/***********************************************************************************/
 // class checkingAccount definition
 class checkingAccount : public bankAccount
 {
-public:
+protected:
     double interest = 0.05;
-    double min_balance = 50000;
+    double min_balance = 500;
     double sg = 2500;
 
 public:
@@ -82,6 +85,7 @@ public:
     void display_acc();
 
     checkingAccount();
+    checkingAccount(int acc, double bal);
 };
 
 double checkingAccount::get_interest()
@@ -91,7 +95,7 @@ double checkingAccount::get_interest()
 
 double checkingAccount::get_balance()
 {
-    bankAccount::get_balance();
+    return balance;
 }
 
 double checkingAccount::minimum_balance()
@@ -112,11 +116,17 @@ bool checkingAccount::verify_balance()
     {
         return false;
     }
+    else
+    {
+        return true;
+    }
 }
 
 double checkingAccount::withdraw(double minus)
 {
-    bankAccount::withdraw(minus);
+    double vessel = balance;
+    vessel -= minus;
+    set_balance(vessel);
 }
 
 void checkingAccount::display_acc()
@@ -126,11 +136,21 @@ void checkingAccount::display_acc()
 
 checkingAccount::checkingAccount()
 {
+    acc_num = 0;
+    balance = 0;
 }
 
+checkingAccount::checkingAccount(int acc, double bal)
+{
+    acc_num = acc;
+    balance = bal;
+}
+
+/***********************************************************************************/
+// class savingsAccout definiton
 class savingsAccount : public bankAccount
 {
-public:
+protected:
     double interest = 0.05;
 
 public:
@@ -140,6 +160,7 @@ public:
     void display_acc();
 
     savingsAccount();
+    savingsAccount(int acc, double bal);
 };
 
 double savingsAccount::get_interest()
@@ -149,35 +170,51 @@ double savingsAccount::get_interest()
 
 double savingsAccount::withdraw(double minus)
 {
-    bankAccount::withdraw(minus);
+    double vessel = balance;
+    vessel -= minus;
+    set_balance(vessel);
 }
 
 double savingsAccount::deposit(double add)
 {
-    bankAccount::deposit(add);
+    double vessel = balance;
+    vessel += add;
+    set_balance(vessel);
 }
 
 savingsAccount::savingsAccount()
 {
+    acc_num = 0;
+    balance = 0;
+}
+
+savingsAccount::savingsAccount(int acc, double bal)
+{
+    acc_num = acc;
+    balance = bal;
+}
+
+void savingsAccount::display_acc()
+{
+    bankAccount::display_acc();
 }
 
 // main program
 int main()
 {
-    int choice, ves1;
+    int choice, an;
     double cb, wd, dp;
     bool sentinel = true;
-    bankAccount tes1;
 
     cout << "Selamat datang di Bank Lalalilu" << endl;
     cout << "Silahkan buat akun terlebih dahulu" << endl;
 
     cout << "Masukkan nomor rekening: ";
-    cin >> ves1;
-    tes1.set_acc_num(ves1);
+    cin >> an;
     cout << "Masukkan saldo: ";
     cin >> cb;
-    tes1.set_balance(cb);
+    checkingAccount ca(an, cb);
+    savingsAccount sa(an, cb);
 
     while (sentinel)
     {
@@ -189,9 +226,7 @@ int main()
         cin >> choice;
         if (choice == 1)
         {
-            int ch;
-            checkingAccount choice1;
-            choice1.display_acc();
+            int ch, ans;
             cout << "Silahkan pilih menu yang anda inginkan: " << endl;
             cout << "1. Withdraw Money" << endl;
             cout << "2. Check Account" << endl;
@@ -201,16 +236,64 @@ int main()
             switch (ch)
             {
             case 1:
+
                 cout << "Masukkan nominal uang yang akan diambil: ";
                 cin >> wd;
-                choice1.withdraw(wd);
-                choice1.display_acc();
+                if (ca.verify_balance())
+                {
+                    ca.withdraw(wd);
+                    cout << "Silahkan ambil uang anda. Anda akan diarahkan kembali ke menu utama" << endl;
+                    break;
+                }
+                else
+                {
+                    cout << "Saldo anda tidak mencukupi. Anda akan diarahkan kembali ke menut utama" << endl;
+                }
+                cout << endl;
+                break;
+            case 2:
+                ca.display_acc();
+                cout << "Anda akan diarahkan kembali ke menu utama" << endl;
+                cout << endl;
                 break;
             }
         }
         else if (choice == 2)
         {
-            savingsAccount choice2;
+            int ch, ans;
+            cout << "Silahkan pilih menu yang anda inginkan: " << endl;
+            cout << "1. Withdraw Money" << endl;
+            cout << "2. Deposit Money" << endl;
+            cout << "Pilihan: ";
+            cin >> ch;
+
+            switch (ch)
+            {
+            case 1:
+
+                cout << "Masukkan nominal uang yang akan diambil: ";
+                cin >> wd;
+                if (ca.verify_balance())
+                {
+                    sa.withdraw(wd);
+                    cout << "Silahkan ambil uang anda. Anda akan diarahkan kembali ke menu utama" << endl;
+                    break;
+                }
+                else
+                {
+                    cout << "Saldo anda tidak mencukupi. Anda akan diarahkan kembali ke menut utama" << endl;
+                }
+                cout << endl;
+                break;
+            case 2:
+                cout << "Masukkan nominal uang yang akan dideposit: ";
+                cin >> dp;
+                sa.deposit(dp);
+                sa.display_acc();
+                cout << "Proses transaksi berhasil. Anda akan diarahkan kembali ke menu utama" << endl;
+                cout << endl;
+                break;
+            }
         }
         else if (choice == 3)
         {
